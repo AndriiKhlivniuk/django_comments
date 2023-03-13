@@ -1,0 +1,78 @@
+{% extends 'base.html' %}
+
+{% block content %}
+  <h1>All Comments</h1>
+  <div class="row">
+    <div class="col-sm-4">
+      <form method="GET" action="">
+        <div class="form-group">
+          <label for="sort_by">Sort by:</label>
+          <select name="sort_by" id="sort_by" class="form-control" >
+            <option></option>
+            <option value="username_asc">User Name (Ascending)</option>
+            <option value="username_desc">User Name (Descending)</option>
+            <option value="email_asc">E-mail (Ascending)</option>
+            <option value="email_desc">E-mail (Descending)</option>
+            <option value="date_asc">Date Added (Ascending)</option>
+            <option value="date_desc">Date Added (Descending)</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <button type="submit" class="btn btn-primary">Sort</button>
+        </div>
+      </form>
+    </div>
+  </div>
+  <hr>
+  <div class="row">
+    {% for comment in page_obj %}
+    <div class="comment">
+      <h2>{{ comment.user_name }}</h2>
+      <p>{{ comment.email }} - {{ comment.created_at }}</p>
+      <p>{{ comment.text }}</p>
+
+      <ul>
+        
+      {% for reply in comment.replies.all %}
+
+      <div class="reply">
+        
+        <li><h3>{{ reply.user_name }}</h3></li>
+        <p>{{ reply.email }} - {{ reply.created_at }}</p>
+        <p>{{ reply.text }}</p>
+      </div>
+      {% empty %}
+      {% endfor %}
+      </ul>
+      <div class="reply-form">
+        <form method="POST" action="{% url 'comments:add_answer' %}">
+          {% csrf_token %}
+          <div class="form-group">
+            <label for="user_name">Name:</label>
+            <input type="text" class="form-control" id="user_name" name="user_name" required>
+          </div>
+          <div class="form-group">
+            <label for="email">Email:</label>
+            <input type="email" class="form-control" id="email" name="email" required>
+          </div>
+          <div class="form-group">
+            <label for="text">Comment:</label>
+            <textarea class="form-control" id="text" name="text" rows="3" required></textarea>
+          </div>
+          <input type="hidden" name="parent_comment_id" value="{{ comment.id }}">
+          <button type="submit" class="btn btn-primary">Reply</button>
+        </form>
+      </div>
+    </div>
+    <hr>
+    {% empty %}
+    <p>No comments yet.</p>
+    {% endfor %}
+  </div>
+  <style>
+    .reply {
+      margin-left: 30px;
+    }
+
+  </style>
+{% endblock %}
